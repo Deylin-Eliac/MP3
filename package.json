@@ -1,13 +1,21 @@
 {
-  "name": "youtube-mp3-api",
+  "name": "ytdl-api-server",
   "version": "1.0.0",
-  "description": "API para descargar audio de YouTube en formato MP3.",
+  "description": "API para descargar audio de YouTube.",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
+  "keywords": [
+    "youtube",
+    "downloader",
+    "mp3",
+    "api"
+  ],
+  "author": "",
+  "license": "ISC",
   "dependencies": {
-    "express": "^4.19.2",
-    "ytdl-core": "^4.11.5"
+    "@distube/ytdl-core": "^4.13.0",
+    "express": "^4.19.2"
   }
 }
