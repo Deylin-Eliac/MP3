@@ -44,28 +44,46 @@ app.get('/download-mp3', async (req, res) => {
     );
     res.header('Content-Type', 'audio/mpeg');
 
-    const stream = ytdl(videoUrl, {
+    // Stream principal (highestaudio)
+    let stream = ytdl(videoUrl, {
       filter: 'audioonly',
       quality: 'highestaudio',
     });
 
-    // Manejo de errores del stream
+    // Manejo de error en stream
     stream.on('error', (err) => {
-      console.error('⚠️ Error en el stream:', err);
-      res.status(500).json({
-        error: 'Error en el stream de YouTube',
-        details: err.message || err,
-        stack: err.stack || null,
-      });
+      console.error('⚠️ Error en highestaudio:', err.message);
+
+      if (err.message.includes('410')) {
+        console.log('🔄 Reintentando con itag 140 (m4a)');
+
+        // Nuevo stream con fallback
+        ytdl(videoUrl, { quality: 140 })
+          .on('error', (err2) => {
+            console.error('❌ Fallback también falló:', err2.message);
+            res.status(500).json({
+              error: 'Error en fallback (itag 140)',
+              details: err2.message,
+              stack: err2.stack || null,
+            });
+          })
+          .pipe(res);
+      } else {
+        res.status(500).json({
+          error: 'Error en el stream de YouTube',
+          details: err.message,
+          stack: err.stack || null,
+        });
+      }
     });
 
     stream.pipe(res);
 
   } catch (error) {
-    console.error('❌ Error general:', error);
+    console.error('❌ Error general:', error.message);
     res.status(500).json({
       error: 'Error general al procesar el video',
-      details: error.message || error,
+      details: error.message,
       stack: error.stack || null,
     });
   }
